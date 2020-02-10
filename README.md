@@ -1,2 +1,3 @@
-# Ctuin-Health-Check
- 定时检查您的服务器在线状态（科学上网必备
+# batch-healer
+全称：Batch Health-Checker
+直译：批量治愈者（迫真）
