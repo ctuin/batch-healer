@@ -4,7 +4,9 @@
 # Author: Xiao_Jin
 
 import time
+import logprint
 
+# ToDO instead with the v2ray link
 requests_url = 'http://localhost/api/servers.json'  # Web-API address
 
 
@@ -13,8 +15,7 @@ def get():
     try:
         req = requests.get(requests_url)
     except requests.exceptions.ConnectionError:
-        time_prefix = '[%s]' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        print('\033[31m%s\nURL: %s\n - requests.exceptions.ConnectionError\033[0m' % (time_prefix, requests_url))
+        logprint.log('\033[31m\nURL: %s\n - requests.exceptions.ConnectionError\033[0m' % requests_url)
         return False
 
     # If connected successfully
@@ -23,5 +24,5 @@ def get():
         print('%s Servers List Loaded from Cloud' % time_prefix)
         return req.json()
     else:
-        print('\033[31m%s\nURL: %s\nHTTP Status Code: %d\033[0m' % (time_prefix, requests_url, req.status_code))
+        logprint.log('\033[31m\nURL: %s\nHTTP Status Code: %d\033[0m' % (requests_url, req.status_code))
         return False

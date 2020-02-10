@@ -4,11 +4,15 @@
 # Author: Xiao_Jin
 
 import servers
+import logprint
+import icmping
+import tcping
 import time
 from ping3 import ping
 
 # Settings
-version = 'DEV 20w07b'
+version = 'DEV'
+v2ray_port = 443  # The port of v2ray server
 ping_amount = 4  # The amount of ping of single server
 delay_min = 0.1  # min
 
@@ -17,40 +21,37 @@ print('=== Ctuin-Health-Check - %s ===' % version)
 
 # Program
 while True:
+    print('=' * 60)
+
     # Get List
     servers_list = servers.get()
     if servers_list is False:
         # DELAY
-        print('- Waiting for %s min' % delay_min)  # Here is better
-        time.sleep(delay_min * 60)
-
+        logprint.delay(delay_min)
         continue
     else:
         print('Start Pinging ...')
 
     # Ping
     for current_server in servers_list:
-        amount = 0
-        status_list = []
-        print('---', end=' ')
-        while amount < ping_amount:
-            amount += 1  # A simple counter
-            ping_result = ping(current_server['ip'], unit='ms', timeout=2)
-            if ping_result is None:
-                status_list.append('timed out')
-                print('timed out', end=', ')
-            else:
-                ping_ms = str(round(ping_result)) + 'ms'
-                status_list.append(ping_ms)
-                print(ping_ms, end=', ')
+        server_expression = '%s (%s) - Owner: %s' % (
+            current_server['name'], current_server['ip'], current_server['owner'])
 
-        server_expression = '%s (%s) - Owner: %s' % (current_server['name'], current_server['ip'], current_server['owner'])
-        time_prefix = '[%s]' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        if status_list.count('timed out') is ping_amount:
-            print('\n\033[31m%s ERR ---- %s\033[0m' % (time_prefix, server_expression))
+        # ICMPING
+        icmp_result = icmping.do(current_server['ip'], ping_amount)
+        if icmp_result:
+            print()  # Need a 'line feed symbol'
+            logprint.log('\n OK ---- %s' % server_expression)
         else:
-            print('\n%s OK ---- %s' % (time_prefix, server_expression))
+            print()  # Need a 'line feed symbol'
+            logprint.log('\033[31m ERR ---- %s\033[0m' % server_expression)
+
+        # TCPING
+        tcp_result = tcping.do(current_server['ip'], v2ray_port)
+        if tcp_result:
+            logprint.log(' OK ---- %s' % server_expression)
+        else:
+            logprint.log('\033[31m ERR ---- %s\033[0m' % server_expression)
 
     # DELAY
-    print('- Waiting for %s min' % delay_min)  # Here is better
-    time.sleep(delay_min * 60)
+    logprint.delay(delay_min)
