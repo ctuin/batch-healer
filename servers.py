@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
-# ========= Ctuin Frp ========
+# ======== Ctuin ========
 # Author: Xiao_Jin
 
-import time
-import logprint
+from logzero import logger
 
 # ToDO instead with the v2ray link
 requests_url = 'http://localhost/api/servers.json'  # Web-API address
@@ -15,14 +14,13 @@ def get():
     try:
         req = requests.get(requests_url)
     except requests.exceptions.ConnectionError:
-        logprint.log('\033[31m\nURL: %s\n - requests.exceptions.ConnectionError\033[0m' % requests_url)
+        logger.error('无法连接至主服务器\nURL: %s\n - requests.exceptions.ConnectionError' % requests_url)
         return False
 
     # If connected successfully
-    time_prefix = '[%s]' % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     if req.status_code == 200:
-        print('%s Servers List Loaded from Cloud' % time_prefix)
+        logger.info('服务器列表已重载')
         return req.json()
     else:
-        logprint.log('\033[31m\nURL: %s\nHTTP Status Code: %d\033[0m' % (requests_url, req.status_code))
+        logger.error('无法获取服务器列表\nURL: %s\nHTTP状态码: %d' % (requests_url, req.status_code))
         return False

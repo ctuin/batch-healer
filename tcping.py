@@ -1,24 +1,28 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
-# ========= Ctuin Frp ========
+# ======== Ctuin ========
 # Author: Xiao_Jin
 
 import socket
-import logprint
+from logzero import logger
+import time
 
 
 def do(ip, port):
-    logprint.log('- TCPING -')
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # 创建 socket 对象
+    logger.debug('- TCPING -')
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        s.connect((ip, port))  # v2ray服务器的443端口
+        time_start = time.time()  # 计时开始
+        s.connect((ip, port))
         s.send(b'GET / HTTP/1.1\n\n')
-        s.close()  # 关闭连接
+        time_end = time.time()  # 计时结束
+        s.close()
+
+        logger.info('TCP正常，用时%sms' % int(round(time_end - time_start, 3) * 1000))  # 小学二年级数学
         return True
     except:
-        s.close()  # 关闭连接
+        time_end = time.time()  # 计时结束
+        s.close()
+
+        logger.error('TCP阻断，耗时%sms' % int(round(time_end - time_start, 3) * 1000))  # 小学二年级数学
         return False
-
-
-if __name__ == '__main__':
-    do('google.com', 443)
