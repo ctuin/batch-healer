@@ -9,7 +9,7 @@ from logzero import logger
 requests_url = 'http://localhost/api/servers.json'  # Web-API address
 
 
-def get():
+def _get():
     import requests
     try:
         req = requests.get(requests_url)
@@ -24,3 +24,6 @@ def get():
     else:
         logger.error('无法获取服务器列表\nURL: %s\nHTTP状态码: %d' % (requests_url, req.status_code))
         return False
+
+def get():
+    return 
