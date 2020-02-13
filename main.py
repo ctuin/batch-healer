@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 # ======== Ctuin ========
-# Author: Xiao_Jin
+# Author: Xiao_Jin & SkEy
 
 import time
-from ping import auto_tcping, httping
+from ping import auto_ping, httping
 from logzero import logger
 
 # 设置
@@ -34,6 +34,6 @@ def delay(delay_time):
 while True:
     for server in SERVER_LIST:
         logger.info('已选中 %s(%s)' % (server['name'], server['host']))
-        if auto_tcping(server['host'], PORT):
+        if auto_ping(server['host'], PORT):
             logger.error('该服务器已被标记为: 不通')
     delay(DELAY_TIME)
