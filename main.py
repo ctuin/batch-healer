@@ -1,10 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 # ======== Ctuin ========
-# Author: Xiao_Jin
+# Author: Xiao_Jin & SkEy
 
 import time
+<<<<<<< HEAD
 import ping
+=======
+from ping import auto_ping, httping
+>>>>>>> 1999962347356342eaa16282eb9e8fba7e246f54
 from logzero import logger
 
 # 设置
