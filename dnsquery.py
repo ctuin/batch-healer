@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: UTF-8 -*-
 # ======== Ctuin ========
 # Author: Xiao_Jin
@@ -6,12 +5,13 @@
 import requests
 import dns.resolver
 
+TIMEOUT = 7
 doh_headers = {'accept': 'application/dns-json'}
 
 
 def _cloudflare(domain, dns_type):
     doh_addr = 'https://cloudflare-dns.com/dns-query?name=%s&type=%s' % (domain, dns_type)
-    req = requests.get(doh_addr, headers=doh_headers)
+    req = requests.get(doh_addr, headers=doh_headers, timeout=TIMEOUT)
     resolve = req.json()
     results = []
     for ip in resolve['Answer']:
