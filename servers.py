@@ -16,7 +16,6 @@ def vmess_parse(v2ray_url, add=True):
     if add:
         sid += 1
 
-    logger.debug('[%d] 正在解析vmess链接' % sid)
     # 提取关键部分，并进行解码；压缩了代码（虽然这样不好）
     v2ray_json = base64.b64decode(v2ray_url[len('vmess://'):].encode()).decode()
     v2ray_py = json.loads(v2ray_json)
@@ -27,6 +26,7 @@ def vmess_parse(v2ray_url, add=True):
         'dns-type': 'A',  # 应该没有AAAA记录的吧（侥幸心理
         'name': v2ray_py['ps']
     }
+    logger.debug('[%d] vmess://%s' % (sid, v2ray_py['ps']))
     return server_dict
 
 

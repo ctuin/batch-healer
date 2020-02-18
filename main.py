@@ -18,7 +18,7 @@ SKIP_TIME = settings.SKIP_TIME
 
 
 def init():
-    logger.info('加载了 %s 台服务器' % len(SERVERS_LIST))
+    logger.info('成功加载了 %s 台服务器' % len(SERVERS_LIST))
     for server in SERVERS_LIST:
         server['available'] = True
         server['dns-polluted'] = False
@@ -40,10 +40,11 @@ def main():
         delay(DELAY_TIME)
 
 
-def runping(server):
+def runping(server):  # 极其复杂的文字游戏
     logger.info('[%d] 已选中 %s(%s)' % (server['sid'], server['name'], server['host']))
     id_and_name = (server['sid'], server['name'])  # 出现频率高，改成变量
-    if ping.auto_tcping(server['sid'], server['host'], server['port'], server['dns-type']):  # TCP失败
+
+    if ping.auto_tcping(server['sid'], server['host'], server['port']):  # TCP失败
         if server['available']:
             logger.error('[%d] %s 的状态已转变为 <不可用> ！' % id_and_name)
             server['skip-time'] = SKIP_TIME
@@ -52,6 +53,18 @@ def runping(server):
             server['skip-time'] = SKIP_TIME
         # 放这里不影响上面的判断
         server['available'] = False
+        # DNS
+        logger.info('[%d] 正在检查是否为DNS污染...' % server['sid'])
+        dns_result = ping.dns_query(server['host'], server['dns-type'])
+        if not dns_result:  # 没污染
+            logger.error('[%d] %s 的DNS记录正常' % id_and_name)
+            server['dns-polluted'] = False
+        elif dns_result['return'] is None:  # 无法检查会返回原因
+            logger.warning('[%d] 无法检查 %s 的DNS污染情况，因为\n%s' % (server['sid'], server['name'], dns_result['e']))
+            server['dns-polluted'] = None
+        elif dns_result:  # 污染
+            logger.error('[%d] %s 已遭受DNS污染！' % id_and_name)
+            server['dns-polluted'] = True
 
     else:  # TCP成功
         if not ping.tlsping(server['sid'], '%s:%s' % (server['host'], server['port'])):  # TLS也成功
@@ -72,9 +85,11 @@ def show_status():
     for server in SERVERS_LIST:
         describe_text = (server['sid'], server['name'], server['host'])
         if not server['available']:
-            if not server['dns-polluted']:
+            if server['dns-polluted'] is None:
+                logger.error('[%d] %s(%s) <不可用>，DNS情况未知' % describe_text)
+            elif not server['dns-polluted']:
                 logger.error('[%d] %s(%s) <不可用>，DNS正常' % describe_text)
-            else:
+            elif server['dns-polluted']:
                 logger.error('[%d] %s(%s) <不可用>，DNS被污染' % describe_text)
         else:
             logger.info('[%d] %s(%s) <可用>，DNS正常' % describe_text)

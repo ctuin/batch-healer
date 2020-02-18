@@ -33,6 +33,6 @@ def diff(domain, dns_type):
     authoritative_dns = sorted(_cloudflare(domain, dns_type))
     local_dns = sorted(_localdns(domain, dns_type))
     if authoritative_dns == local_dns:
-        return False
+        return False  # 没污染
     else:
-        return True
+        return True  # 污染
